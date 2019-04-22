@@ -9,8 +9,7 @@
       $log,
       $q,
       Cache,
-      DB,
-      Session
+      DB
     ) {
 
       'ngInject';
@@ -22,12 +21,7 @@
             .then(function(doc) {
               callback(null, doc.settings);
             })
-            .catch(function(err) {
-              if (err && err.status === 401) {
-                Session.navigateToLogin();
-              }
-              callback(err);
-            });
+            .catch(callback);
         },
         invalidate: function(doc) {
           return doc._id === SETTINGS_ID;
