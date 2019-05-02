@@ -29,10 +29,6 @@ angular
       meta: undefined,
     };
 
-    var authenticationIssue = function(errors) {
-      return _.findWhere(errors, { status: 401 });
-    };
-
     var readOnlyFilter = function(doc) {
       // Never replicate "purged" documents upwards
       const keys = Object.keys(doc);
@@ -75,11 +71,6 @@ angular
         })
         .on('error', function(err) {
           $log.error('Error replicating ' + direction + ' remote server', err);
-        })
-        .on('complete', function(info) {
-          if (!info.ok && authenticationIssue(info.errors)) {
-            Session.navigateToLogin();
-          }
         });
     };
 
