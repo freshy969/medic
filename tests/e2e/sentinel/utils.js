@@ -8,18 +8,15 @@ const utils = require('../../utils'),
 // queue would be like. If we receive no results, we are finished. If we receive results, we try again in 100ms.
 // We use the timeout because local docs don't appear on the changes feed, otherwise we could `longpoll` it instead.
 const waitForSentinel = docIds => {
+  docIds = Array.isArray(docIds) ? docIds : [docIds];
   return requestOnSentinelTestDb('/_local/sentinel-meta-data')
     .then(metaData => metaData.processed_seq)
     .then(seq => {
-      const changeOpts = {
-        since: seq,
-        filter: '_doc_ids',
-        doc_ids: JSON.stringify(Array.isArray(docIds) ? docIds : [docIds])
-      };
+      const changeOpts = { since: seq };
       return utils.requestOnTestDb('/_changes?' + querystring.stringify(changeOpts));
     })
     .then(response => {
-      if (response.results && !response.results.length) {
+      if (response.results && !response.results.find(change => docIds.includes(change.id))) {
         // sentinel has caught up and processed our doc
         return;
       }
